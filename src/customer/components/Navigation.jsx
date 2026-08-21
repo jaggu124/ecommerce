@@ -14,6 +14,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AuthModal from "../Auth/AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser, logout } from "../../State/Auth/Action";
+import { getCart } from "../../State/Cart/Action";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -29,10 +30,13 @@ export default function Navigation() {
   const {auth} = useSelector(store => store)
   const dispatch = useDispatch();
   const location = useLocation();
-  
+  const { cart } = useSelector(store => store);
+
   const handleUserClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+
   const handleCloseUserMenu = (event) => {
     setAnchorEl(null);
   };
@@ -66,6 +70,13 @@ export default function Navigation() {
     }
 
   },[auth.user])
+
+
+useEffect(() => {
+  if (jwt) {
+    dispatch(getCart());
+  }
+}, [jwt]);
 
   const handleLogOut = () => {
     dispatch(logout());
@@ -184,7 +195,7 @@ export default function Navigation() {
                               {section.items.map((item) => (
                                 <li key={item.name} className="flow-root">
                                   <p className="-m-2 block p-2 text-gray-500">
-                                    {"item.name"}
+                                    {item.name}
                                   </p>
                                 </li>
                               ))}
@@ -197,6 +208,17 @@ export default function Navigation() {
                 </Tab.Group>
 
                 <div className="space-y-6 border-t border-gray-200 px-4 py-6">
+                  <div className="flow-root">
+                    <button
+                      onClick={() => {
+                        navigate("/");
+                        setOpen(false);
+                      }}
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Home
+                    </button>
+                  </div>
                   {navigation.pages.map((page) => (
                     <div key={page.name} className="flow-root">
                       <a
@@ -255,19 +277,28 @@ export default function Navigation() {
 
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
-                
+                <button onClick={() => navigate("/")}>
                   <span className="sr-only">Your Company</span>
                   <img
                     src="https://cdn.simpleicons.org/shopify"
                     alt="Shopwithjaggu"
                     className="h-8 w-8 mr-2"
                   />
-              
+                </button>
               </div>
 
               {/* Flyout menus */}
               <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch z-10">
                 <div className="flex h-full space-x-8">
+
+                  {/* Home button */}
+                  <button
+                    onClick={() => navigate("/")}
+                    className="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+                  >
+                    Home
+                  </button>
+
                   {navigation.categories.map((category) => (
                     <Popover key={category.name} className="flex">
                       {({ open, close }) => (
@@ -455,10 +486,10 @@ export default function Navigation() {
 
                 {/* Search */}
                 <div className="flex items-center lg:ml-6">
-                
+
                   <p  className="p-2 text-gray-400 hover:text-gray-500">
                     <span className="sr-only">Search</span>
-                    
+
                     <MagnifyingGlassIcon
                       className="h-6 w-6"
                       aria-hidden="true"
@@ -470,13 +501,14 @@ export default function Navigation() {
                 <div className="ml-4 flow-root lg:ml-6">
                   <Button
                     className="group -m-2 flex items-center p-2"
+                    onClick={() => navigate("/cart")}
                   >
                     <ShoppingBagIcon
                       className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                       aria-hidden="true"
                     />
                     <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                      
+                      {cart.cart?.totalItem || 0}
                     </span>
                     <span className="sr-only">items in cart, view bag</span>
                   </Button>

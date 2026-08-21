@@ -51,11 +51,31 @@ export const getOrderById = (orderId) => async (dispatch) => {
 
 export const getUsersOrders = () => async (dispatch) => {
     dispatch({ type: GET_ORDER_HISTORY_REQUEST });
+
     try {
-        const { data } = await api.get(`/api/orders/user`);
+        const jwt = localStorage.getItem("jwt");
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+            },
+        };
+
+        const { data } = await api.get(`/api/orders/user`, config);
+
         console.log("user orders - ", data);
-        dispatch({ type: GET_ORDER_HISTORY_SUCCESS, payload: data });
+
+        dispatch({
+            type: GET_ORDER_HISTORY_SUCCESS,
+            payload: data
+        });
+
     } catch (error) {
-        dispatch({ type: GET_ORDER_HISTORY_FAILURE, payload: error.message });
+        console.log("get user orders error - ", error);
+
+        dispatch({
+            type: GET_ORDER_HISTORY_FAILURE,
+            payload: error.message
+        });
     }
-}
+};
